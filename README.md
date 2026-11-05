@@ -1,16 +1,24 @@
-## Hi there 👋
+<h1 align="center">Hi 👋, I'm Yimin</h1>
 
-<!--
-**kurhlo/kurhlo** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+- 🔭 I'm interested in **Video Understanding and Recursive Self-Improvement (RSI)**.
+- 🎓 上海电力大学
+- 📫 Reach me at [wyimin0418@gmail.com](mailto:wyimin0418@gmail.com)
+- 🌱 Still learning. Still exploring.
 
-Here are some ideas to get you started:
+<br>
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/contributions-mobile.svg">
+    <img src="assets/contributions.svg" alt="kurhlo's public contribution calendar with a snake animation; recent 27 weeks on mobile" width="100%">
+  </picture>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg">
+    <img src="assets/activity.svg" alt="kurhlo's public contribution total and weekly activity over the last year" width="100%">
+  </picture>
+</p>
+
+<p align="center"><sub>Public contributions · <a href="https://github.com/users/kurhlo/contributions">GitHub</a></sub></p>

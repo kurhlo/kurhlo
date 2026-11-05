@@ -1,0 +1,48 @@
+name: Update profile visuals
+
+on:
+  schedule:
+    - cron: '23 1 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/generate_profile.py
+      - .github/workflows/update-profile.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-visuals-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out profile
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Generate contribution visuals
+        env:
+          PROFILE_USERNAME: ${{ github.repository_owner }}
+        run: python scripts/generate_profile.py --username "$PROFILE_USERNAME"
+
+      - name: Commit updated visuals
+        run: |
+          git add assets/*.svg
+          if git diff --cached --quiet; then
+            echo "Contribution visuals are already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh contribution visuals"
+          git push
