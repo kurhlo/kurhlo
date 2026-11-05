@@ -1,7 +1,7 @@
 <h1 align="center">Hi 👋, I'm Yimin</h1>
 
 - 🔭 I'm interested in **Video Understanding and Recursive Self-Improvement (RSI)**.
-- 🎓 上海电力大学
+- 🎓 Shanghai University of Electric Power
 - 📫 Reach me at [wyimin0418@gmail.com](mailto:wyimin0418@gmail.com)
 - 🌱 Still learning. Still exploring.
 
