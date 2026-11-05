@@ -41,8 +41,8 @@ jobs:
           github_user_name: ${{ github.repository_owner }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           outputs: |
-            assets/contributions.svg?color_snake=#4d5b99&color_dots=#ebedf0,#d9eadf,#a6cbb4,#77ad8b,#447e5a
-            assets/contributions-dark.svg?palette=github-dark&color_snake=#9ba6de&color_dots=#21262d,#17382b,#23533d,#397d54,#65aa7f
+            assets/contributions.svg?color_snake=#4b9e86&color_dots=#ebedf0,#d8eae3,#aed3c3,#7cb49d,#4b8e72
+            assets/contributions-dark.svg?palette=github-dark&color_snake=#7bcbb4&color_dots=#21262d,#17382e,#235345,#397d65,#65aa8e
 
       - name: Commit updated visuals
         run: |

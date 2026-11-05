@@ -129,69 +129,102 @@ def metadata(username: str, days: list[dict]) -> str:
     }, separators=(",", ":")))
 
 
-def activity_svg(username: str, days: list[dict]) -> str:
-    _, _, weekly = calendar_geometry(days)
-    total, peak = sum(weekly), max(max(weekly), 1)
-    left, right, top, bottom = 220, 694, 34, 133
+def monthly_contributions(days: list[dict]) -> list[tuple[str, int]]:
+    """Sum the observed days of each calendar month, including partial months."""
+    months: dict[str, int] = {}
+    for day in days:
+        month = day["date"][:7]
+        months[month] = months.get(month, 0) + day["count"]
+    return sorted(months.items())
+
+
+def monotone_path(points: list[tuple[float, float]]) -> str:
+    """Interpolate monthly values with Fritsch-Carlson-limited cubic curves.
+
+    The curve passes through every observed monthly total. Its tangents are
+    zero at extrema and bounded on each segment, preventing overshoot.
+    """
+    if not points:
+        return ""
+    start = f"M{points[0][0]:.2f},{points[0][1]:.2f}"
+    if len(points) == 1:
+        return start
+    slopes = [(b[1] - a[1]) / (b[0] - a[0])
+              for a, b in zip(points, points[1:])]
+    tangents = [slopes[0]]
+    for before, after in zip(slopes, slopes[1:]):
+        tangents.append(0.0 if before * after <= 0
+                        else 2.0 * before * after / (before + after))
+    tangents.append(slopes[-1])
+    for index, slope in enumerate(slopes):
+        if slope == 0:
+            tangents[index] = tangents[index + 1] = 0.0
+            continue
+        alpha, beta = tangents[index] / slope, tangents[index + 1] / slope
+        magnitude = (alpha * alpha + beta * beta) ** 0.5
+        if magnitude > 3:
+            scale = 3.0 / magnitude
+            tangents[index] = scale * alpha * slope
+            tangents[index + 1] = scale * beta * slope
+    curves = []
+    for index, (a, b) in enumerate(zip(points, points[1:])):
+        third = (b[0] - a[0]) / 3.0
+        curves.append(
+            f"C{a[0] + third:.2f},{a[1] + tangents[index] * third:.2f} "
+            f"{b[0] - third:.2f},{b[1] - tangents[index + 1] * third:.2f} "
+            f"{b[0]:.2f},{b[1]:.2f}"
+        )
+    return start + " " + " ".join(curves)
+
+
+def activity_card(username: str, days: list[dict], *, mobile: bool) -> str:
+    months = monthly_contributions(days)
+    values = [value for _, value in months]
+    total, peak = sum(values), max(max(values), 1)
+    width, height = (360, 198) if mobile else (720, 144)
+    left, right, top, bottom = ((20, 340, 78, 154) if mobile
+                                else (202, 696, 26, 105))
     points = [
-        (left + index / max(1, len(weekly) - 1) * (right - left),
+        (left + index / max(1, len(values) - 1) * (right - left),
          bottom - value / peak * (bottom - top))
-        for index, value in enumerate(weekly)
+        for index, value in enumerate(values)
     ]
-    line = "M" + " L".join(f"{x:.2f},{y:.2f}" for x, y in points)
+    line = monotone_path(points)
     area = f"{line} L{right},{bottom} L{left},{bottom} Z"
-    first_label = date.fromisoformat(days[0]["date"]).strftime("%Y/%m")
-    last_label = date.fromisoformat(days[-1]["date"]).strftime("%Y/%m")
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="720" height="180" viewBox="0 0 720 180" role="img" aria-labelledby="title description">
-  <title id="title">{escape(username)}'s public contribution activity</title>
-  <desc id="description">{total} public contributions from {days[0]["date"]} to {days[-1]["date"]}. Weekly contribution totals: {', '.join(str(n) for n in weekly)}. Highest weekly total: {max(weekly)}.</desc>
+    first_label, last_label = days[0]["date"], days[-1]["date"]
+    monthly_description = "; ".join(f"{month}: {value}" for month, value in months)
+    if mobile:
+        summary = f'''
+  <text x="20" y="34" fill="#7bcbb4" font-size="17" font-weight="500">Yimin Wang</text>
+  <text x="340" y="37" text-anchor="end" fill="#c4e9df" font-size="28" font-weight="500">{total}</text>
+  <text x="340" y="56" text-anchor="end" fill="#9fbbb3" font-size="12">contributions</text>'''
+    else:
+        summary = f'''
+  <text x="24" y="39" fill="#7bcbb4" font-size="17" font-weight="500">Yimin Wang</text>
+  <text x="24" y="81" fill="#c4e9df" font-size="28" font-weight="500">{total}</text>
+  <text x="24" y="102" fill="#9fbbb3" font-size="12">contributions</text>'''
+    label_y, label_size = (180, 12) if mobile else (127, 11)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title description">
+  <title id="title">Yimin Wang's contribution activity</title>
+  <desc id="description">{escape(username)}: {total} public contributions from {first_label} to {last_label}. Calendar-month totals, retaining only the observed dates in the first and last partial months: {monthly_description}. The smooth curve passes through all monthly values without overshoot.</desc>
   <metadata>{metadata(username, days)}</metadata>
-  <style>text{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}}.muted{{fill:#a4c4ba;font-size:11px}}</style>
-  <rect width="720" height="180" rx="6" fill="#0e181e"/>
-  <text class="profile-name" x="24" y="43" fill="#7dcab4" font-size="19" font-weight="500">{escape(username)}</text>
-  <text class="total" x="24" y="86" fill="#c4e9df" font-size="34" font-weight="500">{total}</text>
-  <text class="summary" x="24" y="112" fill="#9fbbb3" font-size="12">contributions in the last year</text>
-  <text class="muted" x="24" y="154">Public contributions</text>
-  <path d="{area}" fill="#387e6e" opacity="0.55"/>
-  <path d="{line}" fill="none" stroke="#7bcbb4" stroke-width="1.6" stroke-linejoin="round"/>
-  <path d="M{left},{bottom} H{right}" fill="none" stroke="#416359"/>
-  <text class="muted" x="{right}" y="23" text-anchor="end">weekly · max {max(weekly)}</text>
-  <text class="muted" x="{left}" y="155">{first_label}</text>
-  <text class="muted" x="{right}" y="155" text-anchor="end">{last_label}</text>
+  <style>text{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}}</style>
+  <rect width="{width}" height="{height}" rx="6" fill="#0e181e"/>{summary}
+  <path d="{area}" fill="#7bcbb4" opacity="0.18"/>
+  <path d="M{left},{bottom} H{right}" fill="none" stroke="#7bcbb4" stroke-opacity="0.2" stroke-width="0.7"/>
+  <path d="{line}" fill="none" stroke="#7bcbb4" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="{left}" y="{label_y}" fill="#9fbbb3" font-size="{label_size}">{first_label}</text>
+  <text x="{right}" y="{label_y}" text-anchor="end" fill="#9fbbb3" font-size="{label_size}">{last_label}</text>
 </svg>
 '''
+
+
+def activity_svg(username: str, days: list[dict]) -> str:
+    return activity_card(username, days, mobile=False)
 
 
 def activity_mobile_svg(username: str, days: list[dict]) -> str:
-    _, _, weekly = calendar_geometry(days)
-    total, peak = sum(weekly), max(max(weekly), 1)
-    left, right, top, bottom = 20, 340, 92, 202
-    points = [
-        (left + index / max(1, len(weekly) - 1) * (right - left),
-         bottom - value / peak * (bottom - top))
-        for index, value in enumerate(weekly)
-    ]
-    line = "M" + " L".join(f"{x:.2f},{y:.2f}" for x, y in points)
-    area = f"{line} L{right},{bottom} L{left},{bottom} Z"
-    first_label = date.fromisoformat(days[0]["date"]).strftime("%Y/%m")
-    last_label = date.fromisoformat(days[-1]["date"]).strftime("%Y/%m")
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="360" height="248" viewBox="0 0 360 248" role="img" aria-labelledby="title description">
-  <title id="title">{escape(username)}'s public contribution activity</title>
-  <desc id="description">{total} public contributions from {days[0]["date"]} to {days[-1]["date"]}. Weekly contribution totals: {', '.join(str(n) for n in weekly)}. Highest weekly total: {max(weekly)}.</desc>
-  <metadata>{metadata(username, days)}</metadata>
-  <style>text{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}}.muted{{fill:#a4c4ba;font-size:12px}}</style>
-  <rect width="360" height="248" rx="6" fill="#0e181e"/>
-  <text x="20" y="35" fill="#7dcab4" font-size="18" font-weight="500">{escape(username)}</text>
-  <text x="340" y="38" text-anchor="end" fill="#c4e9df" font-size="30" font-weight="500">{total}</text>
-  <text x="20" y="58" fill="#9fbbb3" font-size="12">contributions in the last year</text>
-  <text class="muted" x="{right}" y="83" text-anchor="end">weekly · max {max(weekly)}</text>
-  <path d="{area}" fill="#387e6e" opacity="0.55"/>
-  <path d="{line}" fill="none" stroke="#7bcbb4" stroke-width="1.6" stroke-linejoin="round"/>
-  <path d="M{left},{bottom} H{right}" fill="none" stroke="#416359"/>
-  <text class="muted" x="{left}" y="225">{first_label}</text>
-  <text class="muted" x="{right}" y="225" text-anchor="end">{last_label}</text>
-</svg>
-'''
+    return activity_card(username, days, mobile=True)
 
 
 def main() -> None:

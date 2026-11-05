@@ -1,17 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="180" viewBox="0 0 720 180" role="img" aria-labelledby="title description">
-  <title id="title">kurhlo's public contribution activity</title>
-  <desc id="description">248 public contributions from 2025-11-02 to 2026-11-05. Weekly contribution totals: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 8, 4, 8, 46, 14, 35, 27, 25, 2, 0, 1, 7, 0, 2, 3, 21, 10, 11, 3, 3, 1, 1, 7, 0, 0, 5. Highest weekly total: 46.</desc>
-  <metadata>{&quot;username&quot;:&quot;kurhlo&quot;,&quot;source&quot;:&quot;https://github.com/users/kurhlo/contributions&quot;,&quot;first_date&quot;:&quot;2025-11-02&quot;,&quot;last_date&quot;:&quot;2026-11-05&quot;,&quot;total&quot;:248,&quot;days&quot;:369}</metadata>
-  <style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}.muted{fill:#a4c4ba;font-size:11px}</style>
-  <rect width="720" height="180" rx="6" fill="#0e181e"/>
-  <text class="profile-name" x="24" y="43" fill="#7dcab4" font-size="19" font-weight="500">kurhlo</text>
-  <text class="total" x="24" y="86" fill="#c4e9df" font-size="34" font-weight="500">248</text>
-  <text class="summary" x="24" y="112" fill="#9fbbb3" font-size="12">contributions in the last year</text>
-  <text class="muted" x="24" y="154">Public contributions</text>
-  <path d="M220.00,133.00 L229.12,133.00 L238.23,133.00 L247.35,133.00 L256.46,133.00 L265.58,133.00 L274.69,133.00 L283.81,133.00 L292.92,133.00 L302.04,133.00 L311.15,133.00 L320.27,133.00 L329.38,133.00 L338.50,133.00 L347.62,133.00 L356.73,133.00 L365.85,133.00 L374.96,133.00 L384.08,133.00 L393.19,130.85 L402.31,133.00 L411.42,133.00 L420.54,133.00 L429.65,130.85 L438.77,133.00 L447.88,128.70 L457.00,133.00 L466.12,115.78 L475.23,124.39 L484.35,115.78 L493.46,34.00 L502.58,102.87 L511.69,57.67 L520.81,74.89 L529.92,79.20 L539.04,128.70 L548.15,133.00 L557.27,130.85 L566.38,117.93 L575.50,133.00 L584.62,128.70 L593.73,126.54 L602.85,87.80 L611.96,111.48 L621.08,109.33 L630.19,126.54 L639.31,126.54 L648.42,130.85 L657.54,130.85 L666.65,117.93 L675.77,133.00 L684.88,133.00 L694.00,122.24 L694,133 L220,133 Z" fill="#387e6e" opacity="0.55"/>
-  <path d="M220.00,133.00 L229.12,133.00 L238.23,133.00 L247.35,133.00 L256.46,133.00 L265.58,133.00 L274.69,133.00 L283.81,133.00 L292.92,133.00 L302.04,133.00 L311.15,133.00 L320.27,133.00 L329.38,133.00 L338.50,133.00 L347.62,133.00 L356.73,133.00 L365.85,133.00 L374.96,133.00 L384.08,133.00 L393.19,130.85 L402.31,133.00 L411.42,133.00 L420.54,133.00 L429.65,130.85 L438.77,133.00 L447.88,128.70 L457.00,133.00 L466.12,115.78 L475.23,124.39 L484.35,115.78 L493.46,34.00 L502.58,102.87 L511.69,57.67 L520.81,74.89 L529.92,79.20 L539.04,128.70 L548.15,133.00 L557.27,130.85 L566.38,117.93 L575.50,133.00 L584.62,128.70 L593.73,126.54 L602.85,87.80 L611.96,111.48 L621.08,109.33 L630.19,126.54 L639.31,126.54 L648.42,130.85 L657.54,130.85 L666.65,117.93 L675.77,133.00 L684.88,133.00 L694.00,122.24" fill="none" stroke="#7bcbb4" stroke-width="1.6" stroke-linejoin="round"/>
-  <path d="M220,133 H694" fill="none" stroke="#416359"/>
-  <text class="muted" x="694" y="23" text-anchor="end">weekly · max 46</text>
-  <text class="muted" x="220" y="155">2025/11</text>
-  <text class="muted" x="694" y="155" text-anchor="end">2026/11</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="144" viewBox="0 0 720 144" role="img" aria-labelledby="title description">
+  <title id="title">Yimin Wang's contribution activity</title>
+  <desc id="description">kurhlo: 250 public contributions from 2025-11-02 to 2026-11-05. Calendar-month totals, retaining only the observed dates in the first and last partial months: 2025-11: 0; 2025-12: 0; 2026-01: 0; 2026-02: 0; 2026-03: 1; 2026-04: 3; 2026-05: 24; 2026-06: 140; 2026-07: 13; 2026-08: 28; 2026-09: 25; 2026-10: 9; 2026-11: 7. The smooth curve passes through all monthly values without overshoot.</desc>
+  <metadata>{&quot;username&quot;:&quot;kurhlo&quot;,&quot;source&quot;:&quot;https://github.com/users/kurhlo/contributions&quot;,&quot;first_date&quot;:&quot;2025-11-02&quot;,&quot;last_date&quot;:&quot;2026-11-05&quot;,&quot;total&quot;:250,&quot;days&quot;:369}</metadata>
+  <style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}</style>
+  <rect width="720" height="144" rx="6" fill="#0e181e"/>
+  <text x="24" y="39" fill="#7bcbb4" font-size="17" font-weight="500">Yimin Wang</text>
+  <text x="24" y="81" fill="#c4e9df" font-size="28" font-weight="500">250</text>
+  <text x="24" y="102" fill="#9fbbb3" font-size="12">contributions</text>
+  <path d="M202.00,105.00 C215.72,105.00 229.44,105.00 243.17,105.00 C256.89,105.00 270.61,105.00 284.33,105.00 C298.06,105.00 311.78,105.00 325.50,105.00 C339.22,105.00 352.94,104.69 366.67,104.44 C380.39,104.18 394.11,103.99 407.83,103.31 C421.56,102.62 435.28,98.15 449.00,91.46 C462.72,84.77 476.44,26.00 490.17,26.00 C503.89,26.00 517.61,97.66 531.33,97.66 C545.06,97.66 558.78,89.20 572.50,89.20 C586.22,89.20 599.94,89.94 613.67,90.89 C627.39,91.84 641.11,99.25 654.83,99.92 C668.56,100.59 682.28,100.67 696.00,101.05 L696,105 L202,105 Z" fill="#7bcbb4" opacity="0.18"/>
+  <path d="M202,105 H696" fill="none" stroke="#7bcbb4" stroke-opacity="0.2" stroke-width="0.7"/>
+  <path d="M202.00,105.00 C215.72,105.00 229.44,105.00 243.17,105.00 C256.89,105.00 270.61,105.00 284.33,105.00 C298.06,105.00 311.78,105.00 325.50,105.00 C339.22,105.00 352.94,104.69 366.67,104.44 C380.39,104.18 394.11,103.99 407.83,103.31 C421.56,102.62 435.28,98.15 449.00,91.46 C462.72,84.77 476.44,26.00 490.17,26.00 C503.89,26.00 517.61,97.66 531.33,97.66 C545.06,97.66 558.78,89.20 572.50,89.20 C586.22,89.20 599.94,89.94 613.67,90.89 C627.39,91.84 641.11,99.25 654.83,99.92 C668.56,100.59 682.28,100.67 696.00,101.05" fill="none" stroke="#7bcbb4" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="202" y="127" fill="#9fbbb3" font-size="11">2025-11-02</text>
+  <text x="696" y="127" text-anchor="end" fill="#9fbbb3" font-size="11">2026-11-05</text>
 </svg>

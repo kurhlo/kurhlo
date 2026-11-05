@@ -9,15 +9,15 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/contributions-dark.svg?v=2">
-    <img src="assets/contributions.svg?v=2" alt="A snake finds its way through kurhlo's contribution calendar and eats the contribution squares" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/contributions-dark.svg?v=3">
+    <img src="assets/contributions.svg?v=3" alt="A snake finds its way through kurhlo's contribution calendar and eats the contribution squares" width="100%">
   </picture>
 </p>
 
 <p align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg">
-    <img src="assets/activity.svg" alt="kurhlo's public contribution total and weekly activity over the last year" width="100%">
+    <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=3">
+    <img src="assets/activity.svg?v=3" alt="Yimin Wang's public contribution total and monthly activity over the last year" width="100%">
   </picture>
 </p>
 
