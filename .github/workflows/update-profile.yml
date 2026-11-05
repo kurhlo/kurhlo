@@ -30,10 +30,19 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Generate contribution visuals
+      - name: Generate activity cards
         env:
           PROFILE_USERNAME: ${{ github.repository_owner }}
         run: python scripts/generate_profile.py --username "$PROFILE_USERNAME"
+
+      - name: Generate contribution snake
+        uses: Platane/snk/svg-only@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          outputs: |
+            assets/contributions.svg?color_snake=#4d5b99&color_dots=#ebedf0,#d9eadf,#a6cbb4,#77ad8b,#447e5a
+            assets/contributions-dark.svg?palette=github-dark&color_snake=#9ba6de&color_dots=#21262d,#17382b,#23533d,#397d54,#65aa7f
 
       - name: Commit updated visuals
         run: |

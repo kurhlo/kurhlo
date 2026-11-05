@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a GitHub profile's contribution SVGs using only Python's stdlib.
+"""Generate a GitHub profile's activity cards using only Python's stdlib.
 
 The public GitHub contributions HTML is the only data source. No token, API
 credentials, third-party service, or Python dependency is needed. A parse or
@@ -129,52 +129,6 @@ def metadata(username: str, days: list[dict]) -> str:
     }, separators=(",", ":")))
 
 
-def contribution_svg(username: str, days: list[dict]) -> str:
-    sunday, columns, _ = calendar_geometry(days)
-    unit, cell, margin = 13, 10, 12
-    width, height = columns * unit + 2 * margin, 7 * unit + 8
-    total = sum(day["count"] for day in days)
-    safe_name = escape(username)
-    cells = []
-    for day in days:
-        offset = (date.fromisoformat(day["date"]) - sunday).days
-        x, y = margin + (offset // 7) * unit, 4 + (offset % 7) * unit
-        label = f'{day["date"]}: {day["count"]} contributions'
-        cells.append(
-            f'<rect class="level-{day["level"]}" x="{x}" y="{y}" '
-            f'width="{cell}" height="{cell}" rx="2">'
-            f'<title>{escape(label)}</title></rect>'
-        )
-    snake = []
-    for segment in range(6):
-        head = segment == 5
-        snake.append(
-            f'<rect x="{segment * unit}" y="0" width="{cell + (0.5 if head else 0)}" '
-            f'height="{cell + (0.5 if head else 0)}" rx="2.2" '
-            f'fill="{"#4d5b99" if head else "#6974af"}" opacity="{0.55 + segment * 0.09:.2f}"/>'
-        )
-    head_x = 5 * unit
-    snake.extend([
-        f'<circle cx="{head_x + 7.2}" cy="2.8" r="0.8" fill="white"/>',
-        f'<circle cx="{head_x + 7.2}" cy="7.2" r="0.8" fill="white"/>',
-    ])
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title description">
-  <title id="title">{safe_name}'s public contribution calendar</title>
-  <desc id="description">{total} public contributions from {days[0]["date"]} to {days[-1]["date"]}. Each cell is one real calendar day. A small decorative snake moves across the grid.</desc>
-  <metadata>{metadata(username, days)}</metadata>
-  <style>
-    .level-0{{fill:#ebedf0}}.level-1{{fill:#d9eadf}}.level-2{{fill:#a6cbb4}}.level-3{{fill:#77ad8b}}.level-4{{fill:#447e5a}}
-    .snake{{animation:slither 21s steps({columns - 1},end) infinite;transform:translate(-{5 * unit}px,{2 * unit}px)}}
-    @keyframes slither{{0%,4%{{transform:translate(-{5 * unit}px,{2 * unit}px)}}88%,100%{{transform:translate({(columns - 6) * unit}px,{2 * unit}px)}}}}
-    @media(prefers-color-scheme:dark){{.level-0{{fill:#21262d}}.level-1{{fill:#17382b}}.level-2{{fill:#23533d}}.level-3{{fill:#397d54}}.level-4{{fill:#65aa7f}}}}
-    @media(prefers-reduced-motion:reduce){{.snake{{animation:none;transform:translate({max(0, (columns // 2 - 5) * unit)}px,{2 * unit}px)}}}}
-  </style>
-  <g>{''.join(cells)}</g>
-  <g transform="translate({margin},4)" aria-hidden="true"><g class="snake">{''.join(snake)}</g></g>
-</svg>
-'''
-
-
 def activity_svg(username: str, days: list[dict]) -> str:
     _, _, weekly = calendar_geometry(days)
     total, peak = sum(weekly), max(max(weekly), 1)
@@ -253,12 +207,7 @@ def main() -> None:
     html = (arguments.calendar_html.read_text(encoding="utf-8")
             if arguments.calendar_html else fetch_calendar(arguments.username))
     days = parse_calendar(html)
-    sunday, columns, _ = calendar_geometry(days)
-    recent_start = sunday + timedelta(weeks=max(0, columns - 27))
-    recent_days = [day for day in days if date.fromisoformat(day["date"]) >= recent_start]
     images = {
-        "contributions.svg": contribution_svg(arguments.username, days),
-        "contributions-mobile.svg": contribution_svg(arguments.username, recent_days),
         "activity.svg": activity_svg(arguments.username, days),
         "activity-mobile.svg": activity_mobile_svg(arguments.username, days),
     }
