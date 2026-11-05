@@ -9,8 +9,8 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/contributions-dark.svg">
-    <img src="assets/contributions.svg" alt="A snake finds its way through kurhlo's contribution calendar and eats the contribution squares" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/contributions-dark.svg?v=2">
+    <img src="assets/contributions.svg?v=2" alt="A snake finds its way through kurhlo's contribution calendar and eats the contribution squares" width="100%">
   </picture>
 </p>
 
