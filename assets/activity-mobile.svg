@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="198" viewBox="0 0 360 198" role="img" aria-labelledby="title description">
   <title id="title">Yimin Wang's contribution activity</title>
-  <desc id="description">kurhlo: 251 public contributions from 2025-11-02 to 2026-11-05. Calendar-month totals, retaining only the observed dates in the first and last partial months: 2025-11: 0; 2025-12: 0; 2026-01: 0; 2026-02: 0; 2026-03: 1; 2026-04: 3; 2026-05: 24; 2026-06: 140; 2026-07: 13; 2026-08: 28; 2026-09: 25; 2026-10: 9; 2026-11: 8. The smooth curve passes through all monthly values without overshoot.</desc>
-  <metadata>{&quot;username&quot;:&quot;kurhlo&quot;,&quot;source&quot;:&quot;https://github.com/users/kurhlo/contributions&quot;,&quot;first_date&quot;:&quot;2025-11-02&quot;,&quot;last_date&quot;:&quot;2026-11-05&quot;,&quot;total&quot;:251,&quot;days&quot;:369}</metadata>
+  <desc id="description">kurhlo: 251 public contributions from 2025-11-02 to 2026-11-06. Calendar-month totals, retaining only the observed dates in the first and last partial months: 2025-11: 0; 2025-12: 0; 2026-01: 0; 2026-02: 0; 2026-03: 1; 2026-04: 3; 2026-05: 24; 2026-06: 140; 2026-07: 13; 2026-08: 28; 2026-09: 25; 2026-10: 9; 2026-11: 8. The smooth curve passes through all monthly values without overshoot.</desc>
+  <metadata>{&quot;username&quot;:&quot;kurhlo&quot;,&quot;source&quot;:&quot;https://github.com/users/kurhlo/contributions&quot;,&quot;first_date&quot;:&quot;2025-11-02&quot;,&quot;last_date&quot;:&quot;2026-11-06&quot;,&quot;total&quot;:251,&quot;days&quot;:370}</metadata>
   <style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}</style>
   <rect width="360" height="198" rx="6" fill="#0e181e"/>
   <text x="20" y="34" fill="#7bcbb4" font-size="17" font-weight="500">Yimin Wang</text>
@@ -11,5 +11,5 @@
   <path d="M20,154 H340" fill="none" stroke="#7bcbb4" stroke-opacity="0.2" stroke-width="0.7"/>
   <path d="M20.00,154.00 C28.89,154.00 37.78,154.00 46.67,154.00 C55.56,154.00 64.44,154.00 73.33,154.00 C82.22,154.00 91.11,154.00 100.00,154.00 C108.89,154.00 117.78,153.70 126.67,153.46 C135.56,153.22 144.44,153.03 153.33,152.37 C162.22,151.71 171.11,147.41 180.00,140.97 C188.89,134.54 197.78,78.00 206.67,78.00 C215.56,78.00 224.44,146.94 233.33,146.94 C242.22,146.94 251.11,138.80 260.00,138.80 C268.89,138.80 277.78,139.51 286.67,140.43 C295.56,141.34 304.44,148.77 313.33,149.11 C322.22,149.45 331.11,149.48 340.00,149.66" fill="none" stroke="#7bcbb4" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="20" y="180" fill="#9fbbb3" font-size="12">2025-11-02</text>
-  <text x="340" y="180" text-anchor="end" fill="#9fbbb3" font-size="12">2026-11-05</text>
+  <text x="340" y="180" text-anchor="end" fill="#9fbbb3" font-size="12">2026-11-06</text>
 </svg>
