@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Generate activity cards
+      - name: Generate activity timelines
         env:
           PROFILE_USERNAME: ${{ github.repository_owner }}
         run: python scripts/generate_profile.py --username "$PROFILE_USERNAME"

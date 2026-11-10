@@ -15,10 +15,12 @@
 </p>
 
 <p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=3">
-    <img src="assets/activity.svg?v=3" alt="Yimin Wang's public contribution total and monthly activity over the last year" width="100%">
-  </picture>
+  <a href="https://github.com/users/kurhlo/contributions">
+    <picture>
+      <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/activity-mobile-dark.svg?v=4">
+      <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=4">
+      <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg?v=4">
+      <img src="assets/activity.svg?v=4" alt="Public contributions over the past year, grouped by week. Larger dots indicate more contributions." width="100%">
+    </picture>
+  </a>
 </p>
-
-<p align="center"><sub>Public contributions · <a href="https://github.com/users/kurhlo/contributions">GitHub</a></sub></p>

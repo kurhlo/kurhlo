@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a GitHub profile's activity cards using only Python's stdlib.
+"""Generate a GitHub profile's contribution timelines using only Python's stdlib.
 
 The public GitHub contributions HTML is the only data source. No token, API
 credentials, third-party service, or Python dependency is needed. A parse or
@@ -129,102 +129,67 @@ def metadata(username: str, days: list[dict]) -> str:
     }, separators=(",", ":")))
 
 
-def monthly_contributions(days: list[dict]) -> list[tuple[str, int]]:
-    """Sum the observed days of each calendar month, including partial months."""
-    months: dict[str, int] = {}
-    for day in days:
-        month = day["date"][:7]
-        months[month] = months.get(month, 0) + day["count"]
-    return sorted(months.items())
-
-
-def monotone_path(points: list[tuple[float, float]]) -> str:
-    """Interpolate monthly values with Fritsch-Carlson-limited cubic curves.
-
-    The curve passes through every observed monthly total. Its tangents are
-    zero at extrema and bounded on each segment, preventing overshoot.
-    """
-    if not points:
-        return ""
-    start = f"M{points[0][0]:.2f},{points[0][1]:.2f}"
-    if len(points) == 1:
-        return start
-    slopes = [(b[1] - a[1]) / (b[0] - a[0])
-              for a, b in zip(points, points[1:])]
-    tangents = [slopes[0]]
-    for before, after in zip(slopes, slopes[1:]):
-        tangents.append(0.0 if before * after <= 0
-                        else 2.0 * before * after / (before + after))
-    tangents.append(slopes[-1])
-    for index, slope in enumerate(slopes):
-        if slope == 0:
-            tangents[index] = tangents[index + 1] = 0.0
-            continue
-        alpha, beta = tangents[index] / slope, tangents[index + 1] / slope
-        magnitude = (alpha * alpha + beta * beta) ** 0.5
-        if magnitude > 3:
-            scale = 3.0 / magnitude
-            tangents[index] = scale * alpha * slope
-            tangents[index + 1] = scale * beta * slope
-    curves = []
-    for index, (a, b) in enumerate(zip(points, points[1:])):
-        third = (b[0] - a[0]) / 3.0
-        curves.append(
-            f"C{a[0] + third:.2f},{a[1] + tangents[index] * third:.2f} "
-            f"{b[0] - third:.2f},{b[1] - tangents[index + 1] * third:.2f} "
-            f"{b[0]:.2f},{b[1]:.2f}"
-        )
-    return start + " " + " ".join(curves)
-
-
-def activity_card(username: str, days: list[dict], *, mobile: bool) -> str:
-    months = monthly_contributions(days)
-    values = [value for _, value in months]
-    total, peak = sum(values), max(max(values), 1)
-    width, height = (360, 198) if mobile else (720, 144)
-    left, right, top, bottom = ((20, 340, 78, 154) if mobile
-                                else (202, 696, 26, 105))
-    points = [
-        (left + index / max(1, len(values) - 1) * (right - left),
-         bottom - value / peak * (bottom - top))
-        for index, value in enumerate(values)
-    ]
-    line = monotone_path(points)
-    area = f"{line} L{right},{bottom} L{left},{bottom} Z"
-    first_label, last_label = days[0]["date"], days[-1]["date"]
-    monthly_description = "; ".join(f"{month}: {value}" for month, value in months)
-    if mobile:
-        summary = f'''
-  <text x="20" y="34" fill="#7bcbb4" font-size="17" font-weight="500">Yimin Wang</text>
-  <text x="340" y="37" text-anchor="end" fill="#c4e9df" font-size="28" font-weight="500">{total}</text>
-  <text x="340" y="56" text-anchor="end" fill="#9fbbb3" font-size="12">contributions</text>'''
-    else:
-        summary = f'''
-  <text x="24" y="39" fill="#7bcbb4" font-size="17" font-weight="500">Yimin Wang</text>
-  <text x="24" y="81" fill="#c4e9df" font-size="28" font-weight="500">{total}</text>
-  <text x="24" y="102" fill="#9fbbb3" font-size="12">contributions</text>'''
-    label_y, label_size = (180, 12) if mobile else (127, 11)
+def activity_timeline(username: str, days: list[dict], *, mobile: bool, dark: bool) -> str:
+    sunday, columns, weekly = calendar_geometry(days)
+    total = sum(weekly)
+    peak = max(max(weekly), 1)
+    width, height = (360, 64) if mobile else (720, 66)
+    left, right = 10, width - 10
+    center_y = 35
+    spacing = (right - left) / max(1, columns - 1)
+    max_radius = min(4.6, spacing * 0.39)
+    ink, muted, line, empty, mint = (
+        ("#e6edf3", "#9da7b3", "#30363d", "#52616b", "#7bcbb4") if dark
+        else ("#1f2328", "#57606a", "#d8dee4", "#9ba8a6", "#387e68")
+    )
+    first, last = (date.fromisoformat(days[index]["date"]) for index in (0, -1))
+    first_active = next((index for index, count in enumerate(weekly) if count), 0)
+    dots, pulses, weekly_description = [], [], []
+    for index, count in enumerate(weekly):
+        x = left + index * spacing
+        radius = max(1.15, max_radius * (count / peak) ** 0.5) if count else 0.9
+        dots.append(f'<circle cx="{x:.2f}" cy="{center_y}" r="{radius:.2f}" '
+                    f'fill="{mint if count else empty}"/>')
+        if count:
+            delay = (index - first_active) * 85
+            pulses.append(f'<circle class="pulse" cx="{x:.2f}" cy="{center_y}" '
+                          f'r="{radius + 0.35:.2f}" style="animation-delay:{delay}ms"/>')
+        week_start = max(sunday + timedelta(weeks=index), first)
+        weekly_description.append(f"{week_start}: {count}")
+    marks = "\n    ".join(dots + pulses)
+    counts = "; ".join(weekly_description)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title description">
-  <title id="title">Yimin Wang's contribution activity</title>
-  <desc id="description">{escape(username)}: {total} public contributions from {first_label} to {last_label}. Calendar-month totals, retaining only the observed dates in the first and last partial months: {monthly_description}. The smooth curve passes through all monthly values without overshoot.</desc>
+  <title id="title">Public contributions over the past year</title>
+  <desc id="description">{escape(username)}: {total} public contributions from {first} to {last}. Larger dots indicate more contributions. Weekly counts by start date, including partial weeks: {counts}.</desc>
   <metadata>{metadata(username, days)}</metadata>
-  <style>text{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}}</style>
-  <rect width="{width}" height="{height}" rx="6" fill="#0e181e"/>{summary}
-  <path d="{area}" fill="#7bcbb4" opacity="0.18"/>
-  <path d="M{left},{bottom} H{right}" fill="none" stroke="#7bcbb4" stroke-opacity="0.2" stroke-width="0.7"/>
-  <path d="{line}" fill="none" stroke="#7bcbb4" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="{left}" y="{label_y}" fill="#9fbbb3" font-size="{label_size}">{first_label}</text>
-  <text x="{right}" y="{label_y}" text-anchor="end" fill="#9fbbb3" font-size="{label_size}">{last_label}</text>
+  <style>
+    text {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }}
+    .pulse {{
+      fill: none;
+      stroke: {mint};
+      stroke-width: 0.8;
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: week-pulse 10s linear infinite;
+    }}
+    @keyframes week-pulse {{
+      0% {{ opacity: 0; transform: scale(1); }}
+      1.4% {{ opacity: 0.64; }}
+      6%, 100% {{ opacity: 0; transform: scale(1.8); }}
+    }}
+    @media (prefers-reduced-motion: reduce) {{ .pulse {{ animation: none; }} }}
+  </style>
+  <text x="{left}" y="16" fill="{ink}" font-size="13" font-weight="600">Public contributions</text>
+  <text x="{right}" y="16" text-anchor="end" fill="{muted}" font-size="12"><tspan fill="{ink}" font-weight="600">{total:,}</tspan> in the past year</text>
+  <g aria-hidden="true">
+    <line x1="{left}" x2="{right}" y1="{center_y}" y2="{center_y}" stroke="{line}" stroke-width="0.8"/>
+    {marks}
+  </g>
+  <text x="{left}" y="56" fill="{muted}" font-size="11">{first:%b %Y}</text>
+  <text x="{right}" y="56" text-anchor="end" fill="{muted}" font-size="11">{last:%b %Y}</text>
 </svg>
 '''
-
-
-def activity_svg(username: str, days: list[dict]) -> str:
-    return activity_card(username, days, mobile=False)
-
-
-def activity_mobile_svg(username: str, days: list[dict]) -> str:
-    return activity_card(username, days, mobile=True)
 
 
 def main() -> None:
@@ -241,8 +206,10 @@ def main() -> None:
             if arguments.calendar_html else fetch_calendar(arguments.username))
     days = parse_calendar(html)
     images = {
-        "activity.svg": activity_svg(arguments.username, days),
-        "activity-mobile.svg": activity_mobile_svg(arguments.username, days),
+        "activity.svg": activity_timeline(arguments.username, days, mobile=False, dark=False),
+        "activity-dark.svg": activity_timeline(arguments.username, days, mobile=False, dark=True),
+        "activity-mobile.svg": activity_timeline(arguments.username, days, mobile=True, dark=False),
+        "activity-mobile-dark.svg": activity_timeline(arguments.username, days, mobile=True, dark=True),
     }
     # Validate all documents before writing any file. This retains the
     # previous known-good images when GitHub changes its HTML unexpectedly.
