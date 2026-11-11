@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a GitHub profile's contribution timelines using only Python's stdlib.
+"""Generate a GitHub profile's contribution staircases using only Python's stdlib.
 
 The public GitHub contributions HTML is the only data source. No token, API
 credentials, third-party service, or Python dependency is needed. A parse or
@@ -12,6 +12,7 @@ import argparse
 from datetime import date, timedelta
 from html import escape
 from html.parser import HTMLParser
+from itertools import groupby
 import json
 from pathlib import Path
 import re
@@ -106,18 +107,6 @@ def fetch_calendar(username: str) -> str:
     raise RuntimeError("Could not fetch the contribution calendar")
 
 
-def calendar_geometry(days: list[dict]) -> tuple[date, int, list[int]]:
-    first = date.fromisoformat(days[0]["date"])
-    sunday = first - timedelta(days=(first.weekday() + 1) % 7)
-    last = date.fromisoformat(days[-1]["date"])
-    columns = (last - sunday).days // 7 + 1
-    weekly = [0] * columns
-    for day in days:
-        column = (date.fromisoformat(day["date"]) - sunday).days // 7
-        weekly[column] += day["count"]
-    return sunday, columns, weekly
-
-
 def metadata(username: str, days: list[dict]) -> str:
     return escape(json.dumps({
         "username": username,
@@ -129,65 +118,127 @@ def metadata(username: str, days: list[dict]) -> str:
     }, separators=(",", ":")))
 
 
-def activity_timeline(username: str, days: list[dict], *, mobile: bool, dark: bool) -> str:
-    sunday, columns, weekly = calendar_geometry(days)
-    total = sum(weekly)
-    peak = max(max(weekly), 1)
-    width, height = (360, 64) if mobile else (720, 66)
-    left, right = 10, width - 10
-    center_y = 35
-    spacing = (right - left) / max(1, columns - 1)
-    max_radius = min(4.6, spacing * 0.39)
-    ink, muted, line, empty, mint = (
-        ("#e6edf3", "#9da7b3", "#30363d", "#52616b", "#7bcbb4") if dark
-        else ("#1f2328", "#57606a", "#d8dee4", "#9ba8a6", "#387e68")
-    )
+def activity_staircase(username: str, days: list[dict], *, mobile: bool, dark: bool) -> str:
     first, last = (date.fromisoformat(days[index]["date"]) for index in (0, -1))
-    first_active = next((index for index, count in enumerate(weekly) if count), 0)
-    dots, pulses, weekly_description = [], [], []
-    for index, count in enumerate(weekly):
-        x = left + index * spacing
-        radius = max(1.15, max_radius * (count / peak) ** 0.5) if count else 0.9
-        dots.append(f'<circle cx="{x:.2f}" cy="{center_y}" r="{radius:.2f}" '
-                    f'fill="{mint if count else empty}"/>')
-        if count:
-            delay = (index - first_active) * 85
-            pulses.append(f'<circle class="pulse" cx="{x:.2f}" cy="{center_y}" '
-                          f'r="{radius + 0.35:.2f}" style="animation-delay:{delay}ms"/>')
-        week_start = max(sunday + timedelta(weeks=index), first)
-        weekly_description.append(f"{week_start}: {count}")
-    marks = "\n    ".join(dots + pulses)
-    counts = "; ".join(weekly_description)
+    months = []
+    for _, month_days in groupby(days, key=lambda day: day["date"][:7]):
+        observed = list(month_days)
+        months.append((date.fromisoformat(observed[-1]["date"]), sum(day["count"] for day in observed)))
+    total = sum(count for _, count in months)
+    width, height = (360, 115) if mobile else (720, 87)
+    left, right, top, bottom, axis = (10, 350, 54, 93, 109) if mobile else (247, 706, 11, 61, 79)
+    title_y, count_y, count_size = (17, 42, 23) if mobile else (30, 57, 26)
+    ink, muted, rule, trail_start, mint, comet = (
+        ("#e6edf3", "#9da7b3", "#30363d", "#4e8f7d", "#90dcc7", "#adf5df") if dark
+        else ("#1f2328", "#57606a", "#d8dee4", "#78a394", "#337c67", "#367d69")
+    )
+
+    cumulative = 0
+    distances = [0.0]
+    readings = [(0, f"{first:%b %Y}")]
+    path_commands = [f"M{left} {bottom}"]
+    for end, count in months:
+        cumulative += count
+        x = left + (right - left) * (end - first).days / (last - first).days
+        y = bottom - (bottom - top) * cumulative / max(total, 1)
+        path_commands.append(f"H{x:.3f} V{y:.3f}")
+        distances.append(x - left + bottom - y)
+        readings.append((cumulative, f"{end:%b %Y}"))
+    path = " ".join(path_commands)
+    length = distances[-1]
+    fractions = [distance / length for distance in distances] + [1.0]
+
+    # Draw over 5.2 seconds, then leave the full chart visible until the next pass.
+    cycle_seconds = 12
+    draw_end = 5.2 / cycle_seconds
+    fade_end = draw_end + 0.3 / cycle_seconds
+    times = [draw_end * index / len(months) for index in range(len(months) + 1)] + [1.0]
+
+    def decimals(values):
+        return ";".join(f"{value:.6f}" for value in values)
+
+    def animation(attribute, values, keys=times, *, discrete=False):
+        values = ";".join(f"{value:.6f}" if isinstance(value, float) else str(value) for value in values)
+        mode = ' calcMode="discrete"' if discrete else ""
+        return (f'<animate attributeName="{attribute}" values="{values}" keyTimes="{decimals(keys)}"'
+                f'{mode} dur="{cycle_seconds}s" repeatCount="indefinite"/>')
+
+    def reading(count, period):
+        return (f'<text x="10" y="{count_y}" fill="{ink}" font-size="{count_size}" '
+                f'font-weight="600">{count:,}<tspan dx="8" font-size="11.5" '
+                f'font-weight="400" fill="{muted}">{period}</tspan></text>')
+
+    tails = []
+    band = (22 if mobile else 29) / length / 4
+    for index, (weight, opacity) in enumerate(((1.7, 0.20), (2.1, 0.36), (2.6, 0.54), (3.2, 0.78))):
+        travel = animation("stroke-dashoffset", [band * (4 - index) - fraction for fraction in fractions])
+        tails.append(f'<path class="line" d="{path}" pathLength="1" stroke="{comet}" stroke-width="{weight}" '
+                     f'stroke-opacity="{opacity}" stroke-dasharray="{band:.6f} 1">{travel}</path>')
+    tail = "\n      ".join(tails)
+    appear = animation("opacity", [0, 1, 1, 0, 0], [0, 0.014, draw_end, fade_end, 1])
+    at_end = animation("opacity", [0, 0, 1, 1], [0, draw_end, fade_end, 1])
+    reveal = animation("stroke-dashoffset", [1 - fraction for fraction in fractions])
+    full_reading = reading(total, "past year")
+    monthly_readings = []
+    for index, (count, period) in enumerate(readings[:-1]):
+        start, end = times[index:index + 2]
+        states, keys = (("hidden", "visible", "hidden", "hidden"), (0, start, end, 1)) if index else (
+            ("visible", "hidden", "hidden"), (0, end, 1)
+        )
+        show = animation("visibility", states, keys, discrete=True)
+        monthly_readings.append(f'<g visibility="hidden">{show}{reading(count, period)}</g>')
+    show_total = animation("visibility", ["hidden", "visible", "visible"], [0, draw_end, 1], discrete=True)
+    counter = "\n    ".join(monthly_readings)
+    end_y = top if total else bottom
+    marker = (f'<circle cx="{right}" cy="{end_y}" r="5.7" fill="{mint}" opacity=".2"/>'
+              f'<circle cx="{right}" cy="{end_y}" r="3" fill="{mint}"/>')
+    midpoint = (first + (last - first) / 2).replace(day=1)
+    mid_x = left + (right - left) * (midpoint - first).days / (last - first).days
+    counts = "; ".join(f"{end:%Y-%m}: {count}" for end, count in months)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title description">
-  <title id="title">Public contributions over the past year</title>
-  <desc id="description">{escape(username)}: {total} public contributions from {first} to {last}. Larger dots indicate more contributions. Weekly counts by start date, including partial weeks: {counts}.</desc>
+  <title id="title">Cumulative public contributions over the past year</title>
+  <desc id="description">{escape(username)}: {total} public contributions from {first} to {last}. The staircase rises at the end of each observed month. Monthly counts, including partial months: {counts}.</desc>
   <metadata>{metadata(username, days)}</metadata>
   <style>
-    text {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }}
-    .pulse {{
-      fill: none;
-      stroke: {mint};
-      stroke-width: 0.8;
-      opacity: 0;
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: week-pulse 10s linear infinite;
+    text {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-variant-numeric: tabular-nums; }}
+    .line {{ fill: none; stroke-linecap: round; stroke-linejoin: round; }}
+    .still {{ display: none; }}
+    @media (prefers-reduced-motion: reduce) {{
+      .animated {{ display: none; }}
+      .still {{ display: inline; }}
     }}
-    @keyframes week-pulse {{
-      0% {{ opacity: 0; transform: scale(1); }}
-      1.4% {{ opacity: 0.64; }}
-      6%, 100% {{ opacity: 0; transform: scale(1.8); }}
-    }}
-    @media (prefers-reduced-motion: reduce) {{ .pulse {{ animation: none; }} }}
   </style>
-  <text x="{left}" y="16" fill="{ink}" font-size="13" font-weight="600">Public contributions</text>
-  <text x="{right}" y="16" text-anchor="end" fill="{muted}" font-size="12"><tspan fill="{ink}" font-weight="600">{total:,}</tspan> in the past year</text>
-  <g aria-hidden="true">
-    <line x1="{left}" x2="{right}" y1="{center_y}" y2="{center_y}" stroke="{line}" stroke-width="0.8"/>
-    {marks}
+  <defs><linearGradient id="mint"><stop offset="0" stop-color="{trail_start}"/><stop offset="1" stop-color="{mint}"/></linearGradient></defs>
+  <text x="10" y="{title_y}" fill="{ink}" font-size="13.5" font-weight="600">Public contributions</text>
+  <line x1="{left}" x2="{right}" y1="{(top + bottom) / 2}" y2="{(top + bottom) / 2}" stroke="{rule}" opacity=".65"/>
+  <line x1="{left}" x2="{right}" y1="{bottom}" y2="{bottom}" stroke="{rule}"/>
+  <path class="line" d="{path}" stroke="{mint}" stroke-width="1.2" opacity=".22"/>
+  <g class="animated" aria-hidden="true">
+    <path class="line" d="{path}" pathLength="1" stroke="url(#mint)" stroke-width="1.6" stroke-dasharray="1">{reveal}</path>
+    <g opacity="0">
+      {appear}
+      {tail}
+      <g>
+        <animateMotion path="{path}" keyPoints="{decimals(fractions)}" keyTimes="{decimals(times)}" calcMode="linear" dur="{cycle_seconds}s" repeatCount="indefinite"/>
+        <circle r="5.9" fill="{mint}" opacity=".24"/>
+        <circle r="3.35" fill="{comet}"/>
+        <circle r="1.7" fill="#edfff8"/>
+      </g>
+    </g>
+    <g opacity="1">{at_end}{marker}</g>
+    {counter}
+    <g visibility="visible">{show_total}{full_reading}</g>
   </g>
-  <text x="{left}" y="56" fill="{muted}" font-size="11">{first:%b %Y}</text>
-  <text x="{right}" y="56" text-anchor="end" fill="{muted}" font-size="11">{last:%b %Y}</text>
+  <g class="still" aria-hidden="true">
+    <path class="line" d="{path}" stroke="url(#mint)" stroke-width="1.6"/>
+    {marker}
+    {full_reading}
+  </g>
+  <g fill="{muted}" font-size="11">
+    <text x="{left}" y="{axis}">{first:%b %Y}</text>
+    <text x="{mid_x:.2f}" y="{axis}" text-anchor="middle">{midpoint:%b %Y}</text>
+    <text x="{right}" y="{axis}" text-anchor="end">{last:%b %Y}</text>
+  </g>
 </svg>
 '''
 
@@ -206,10 +257,10 @@ def main() -> None:
             if arguments.calendar_html else fetch_calendar(arguments.username))
     days = parse_calendar(html)
     images = {
-        "activity.svg": activity_timeline(arguments.username, days, mobile=False, dark=False),
-        "activity-dark.svg": activity_timeline(arguments.username, days, mobile=False, dark=True),
-        "activity-mobile.svg": activity_timeline(arguments.username, days, mobile=True, dark=False),
-        "activity-mobile-dark.svg": activity_timeline(arguments.username, days, mobile=True, dark=True),
+        "activity.svg": activity_staircase(arguments.username, days, mobile=False, dark=False),
+        "activity-dark.svg": activity_staircase(arguments.username, days, mobile=False, dark=True),
+        "activity-mobile.svg": activity_staircase(arguments.username, days, mobile=True, dark=False),
+        "activity-mobile-dark.svg": activity_staircase(arguments.username, days, mobile=True, dark=True),
     }
     # Validate all documents before writing any file. This retains the
     # previous known-good images when GitHub changes its HTML unexpectedly.

@@ -17,10 +17,10 @@
 <p align="center">
   <a href="https://github.com/users/kurhlo/contributions">
     <picture>
-      <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/activity-mobile-dark.svg?v=4">
-      <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=4">
-      <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg?v=4">
-      <img src="assets/activity.svg?v=4" alt="Public contributions over the past year, grouped by week. Larger dots indicate more contributions." width="100%">
+      <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/activity-mobile-dark.svg?v=5">
+      <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=5">
+      <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg?v=5">
+      <img src="assets/activity.svg?v=5" alt="Cumulative public contributions over the past year. A comet traces the monthly staircase." width="100%">
     </picture>
   </a>
 </p>
