@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/users/kurhlo/contributions">
+  <a href="https://github.com/kurhlo#js-contribution-activity-description">
     <picture>
       <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/activity-mobile-dark.svg?v=5">
       <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=5">
