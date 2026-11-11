@@ -15,12 +15,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/kurhlo#js-contribution-activity-description">
-    <picture>
-      <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/activity-mobile-dark.svg?v=5">
-      <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=5">
-      <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg?v=5">
-      <img src="assets/activity.svg?v=5" alt="Cumulative public contributions over the past year. A comet traces the monthly staircase." width="100%">
-    </picture>
-  </a>
+  <picture>
+    <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/activity-mobile-dark.svg?v=5">
+    <source media="(max-width: 600px)" srcset="assets/activity-mobile.svg?v=5">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg?v=5">
+    <img src="assets/activity.svg?v=5" alt="Cumulative public contributions over the past year. A comet traces the monthly staircase." width="100%">
+  </picture>
 </p>
